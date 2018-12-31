@@ -12,7 +12,7 @@ std::string **generate(int n, int m, int k, int l)
 	np = mp = false;
 	if (n % 2 == 1 && m % 2 == 1)
 	{
-		max = (n*(m - 1) + n - 1) / 2;
+		max = (n*(m - 1) + n + 1) / 2;
 	}
 	else
 	{
@@ -29,7 +29,7 @@ std::string **generate(int n, int m, int k, int l)
 
 	if (k > max)
 	{
-		std::cout << "k too big!" << std::endl;
+		std::cout << "k too big! Max is ( "<<max<<" )"<< std::endl;
 		exit(0);
 	}
 	else if (k == 0)
@@ -39,6 +39,11 @@ std::string **generate(int n, int m, int k, int l)
 	}
 
 	std::string **T = new std::string*[n];
+	if(T == nullptr)
+	{
+		std::cout<<"Allocation error in generator!"<<std::endl;
+		return(0);
+	}
 	int **Covered = new int*[n];
 	for (int i = 0; i < n; ++i)
 	{
@@ -101,15 +106,7 @@ std::string **generate(int n, int m, int k, int l)
 				--k;
 			}
 		}
-		for (int i = 0; i < n; ++i)
-		{
-			for (int j = 0; j < m; ++j)
-			{
-				std::cout << T[i][j] << " ";
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
+
 		int z = rand() % cover;
 		while (z > 0)
 		{
@@ -149,14 +146,26 @@ std::string **generate(int n, int m, int k, int l)
 			}
 		}
 	}
+
 	else
 	{
+		//``````````````````````````MAX
 		if (k == max)
 		{
 			int one = rand() % 2;
 			if (one == 1)
 			{
 				int	y = rand() % n, x = rand() % m;
+				if(!np && !mp)
+				{
+					if((y % 2) == (x % 2))
+					{
+						if(y % 2 == 1)
+							y--;
+						else
+							x++;
+					}
+				}
 				T[y][x] = "o";
 			}
 		}
@@ -165,6 +174,8 @@ std::string **generate(int n, int m, int k, int l)
 			k = max - k;
 			cover = k;
 
+
+			//``````````````````````````MP
 			if (mp)
 			{
 				while (k > 0)
@@ -230,6 +241,7 @@ std::string **generate(int n, int m, int k, int l)
 				}
 			}
 
+			//``````````````````````````NP
 			else if (np)
 			{
 				while (k > 0)
@@ -249,26 +261,26 @@ std::string **generate(int n, int m, int k, int l)
 
 				int hit = 0;
 				bool pp = false;
-				int	x = rand() % n;
+				int	x = rand() % m;
 				if (x % 2 == 0)
 				{
 					pp = true;
 				}
 				while (hit != cover)
 				{
-					int	x = rand() % n;
+					int	x = rand() % m;
 					if (pp)
 					{
 						if (x % 2 == 0)
 						{
-							for (int i = 0; i < m; i+=2)
+							for (int i = 0; i < n; i+=2)
 							{
 								T[i][x] = "o";
 							}
 						}
 						else
 						{
-							for (int i = 1; i < m; i += 2)
+							for (int i = 1; i < n; i += 2)
 							{
 								T[i][x] = "o";
 							}
@@ -278,14 +290,14 @@ std::string **generate(int n, int m, int k, int l)
 					{
 						if (x % 2 == 0)
 						{
-							for (int i = 1; i < m; i += 2)
+							for (int i = 1; i < n; i += 2)
 							{
 								T[i][x] = "o";
 							}
 						}
 						else
 						{
-							for (int i = 0; i < m; i += 2)
+							for (int i = 0; i < n; i += 2)
 							{
 								T[i][x] = "o";
 							}
@@ -295,63 +307,102 @@ std::string **generate(int n, int m, int k, int l)
 				}
 			}
 
+			//``````````````````````````NN
 			else
 			{
+				int isOne = rand();
+				if(isOne % 2 == 1)	//add single in last column
+				{
+					int y = rand() % n;
+					if(y % 2 == 1)
+					{
+						--y;
+					}
+					T[y][m-1] = "o";
+					Covered[y][m-1] = 1;
+					--k;
+				}
+
 				while (k > 0)
 				{
-					int	y = rand() % n, x = rand() % m - 1;
-					if (x % 2 == 1)
+					int	y = rand() % n, x = rand() % m;
+					if(x == m-1)
 					{
-						x--;
+						if (y % 2 == 1)
+						{
+							y--;
+						}
+						if (Covered[y][x] == 0)
+						{
+							if(y==m-1)
+							{
+								T[y][x] = T[y-1][x] = "o";
+								Covered[y][x] = Covered[y-1][x] = 1;
+							}
+							else{
+								T[y][x] = T[y+1][x] = "o";
+								Covered[y][x] = Covered[y+1][x] = 1;
+							}
+							--k;
+						}
 					}
-					if (Covered[y][x] == 0)
+					else
 					{
-						T[y][x] = T[y][x + 1] = "o";
-						Covered[y][x] = Covered[y][x + 1] = 1;
-						--k;
+						if (x % 2 == 1)
+						{
+							x--;
+						}
+						if (Covered[y][x] == 0)
+						{
+							T[y][x] = T[y][x + 1] = "o";
+							Covered[y][x] = Covered[y][x + 1] = 1;
+							--k;
+						}
 					}
 				}
+
 				int hit = 0;
 				bool pp = false;
-				int	y = rand() % n;
-				if (y % 2 == 0)
+				int	x = rand() % m;
+				if (x % 2 == 0)
 				{
 					pp = true;
 				}
-				while (hit != cover)
+				int r = rand() %m;
+				while (hit != r)
 				{
-					int	y = rand() % n;
+					int	x = rand() % m;
 					if (pp)
 					{
-						if (y % 2 == 0)
+						if (x % 2 == 0)
 						{
-							for (int i = 0; i < m-1; i+=2)
+							for (int i = 1; i < n; i+=2)
 							{
-								T[y][i] = "o";
+								T[i][x] = "o";
 							}
 						}
 						else
 						{
-							for (int i = 1; i < m-1; i += 2)
+							for (int i = 0; i < n; i += 2)
 							{
-								T[y][i] = "o";
+								T[i][x] = "o";
 							}
 						}
 					}
 					else
 					{
-						if (y % 2 == 0)
+						if (x % 2 == 0)
 						{
-							for (int i = 1; i < m-1; i += 2)
+							for (int i = 1; i < n; i += 2)
 							{
-								T[y][i] = "o";
+								T[i][x] = "o";
 							}
 						}
 						else
 						{
-							for (int i = 0; i < m-1; i += 2)
+							for (int i = 0; i < n; i += 2)
 							{
-								T[y][i] = "o";
+								T[i][x] = "o";
 							}
 						}
 					}
@@ -360,29 +411,5 @@ std::string **generate(int n, int m, int k, int l)
 			}
 		}
 	}
-
 	return T;
-}
-
-
-int main()
-{
-	srand(time(NULL));
-
-	int n = 5;
-	int m = 6;
-	int k = 15;
-	std::string **T = generate(n, m, k, 2);
-
-	for (int i = 0; i < n; ++i)
-	{
-		for (int j = 0; j < m; ++j)
-		{
-			std::cout << T[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
-
-
-	return 0;
 }
