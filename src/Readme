@@ -1,0 +1,62 @@
+Mateusz Krawczyk
+Indeks: 283684
+
+Stacje BTS - problem polega na tym, że na wejściu dostajemy tablicę dwuwymiarową wypełnioną * oraz o, w której należy pokryć wszystkie *, gdzie możemy to zrobić za pomocą "prostokątów wielkości 1x2", czyli dwie kolejne komórki tablicy pionowo lub poziomo, albo zaznaczać * pojedynczo. Należy znaleźć najmniejszą liczbę takich pokryć, aby każda * miała co najmniej jedno pokrycie pokrycie.
+
+Program możemy skompilować poleceniem make, a następnie uruchomić za pomocą ./cover w następujacych trybach:
+
+1. Dajemy na wejście dane z pliku .txt, w którym znajduje sie tablica jak w treści zadania wypełniona, np. w nastepujący sposób:
+   
+   3 4
+   * o * o 
+   o * * o
+   * * * o  
+
+   gdzie 3 oznacza liczbę wierszy, a 4 liczbę kolumn. Wszystkie elementy oddzielone spacją.
+   Uruchamiamy go wtedy jako:
+   
+   ./cover -m1 <dane.txt           - wyświetli nam rozwiązanie na w terminalu, lub możemy podać je do pliku, np.
+   ./cover -m1 <dane.txt >out.txt  - zapisze wynik w pliku out.txt
+
+2. Tablica zostaje wygenerowana losowo. Jako argumenty programu podajemy kolejno liczbę wierszy oraz kolumn tablicy, a jako ostatni pokrycie jakie ma posiadać ta tablica:
+ 
+   ./cover -m2 n m k 
+    
+   , np.
+   ./cover -m2 10 10 7    - wygeneruje losowo tablicę 10x10, w której pokrycie wynosi 7. Wygenerowana tablica zostanie pokazana na wyjściu, a poniżej rozwiązanie uzyskane przeprowadzonym na niej algorytmem. Powinno zwrócić wartość 4 argumentu, czyli 7. Wynik możemy jak poprzednio zapisać w pliku.
+
+3. Trzecia opcja generuje wiele różnych tablic dla kolejnych pokryć oraz wylicza czas i złozonosć algorytmu.
+ 
+   ./cover -m3 n k step r
+    gdzie 
+	n - początkowe pokrycie 
+	k - liczba iteracji
+	step - krok o jaki zwiekszamy n, w kolejnych iteracjach
+	r - liczba powtórzeń dla konkretnego n
+
+   Przykładowo: ./cover -m3 1000 10 500 10 - uruchamia algorytm, generując na początku losową tablicę kolejno dla pokryć 1000, 1500, 2000... 6000,     	  dla  każdego r = 10 razy, za kazdym razem generując nową tablicę. Na końcu wyświetlona zostaje tabelka z pomiarami jak w wymaganiach.
+
+
+Rozwiązanie polega na przerobieniu tablicy na graf dwudzielny. Następnie wyliczany zostaje max-matching naszego grafu, który pomoże obliczyć liczbę pokryć, a będzie ona równa V - Max, gdzie V to liczba wierzchołków, a Max - max matching wyliczony za pomocą algorytmu.
+
+Max matching wyliczony zostaje za pomocą zaimplementowanego algorytmu Hopcroft-Karp. W implementacji wykorzystane zostają funkcje bfs(breadth-first search) oraz dfs(depth-first search). Graf reprezentowany jest za pomocą jednokierunkowej listy dynamicznej, której kolejne komórki też są listami i przechowują odpowiednio informacje o wierzchołkach, które są połączone krawędzią. Poza tym wykorzystany został pomocniczo kontener query. Inne informacje i dane w plikach przechowywane są w dynamicznie alokowanych tablicach, jedno lub dwu wymiarowych.
+
+Dekompozycja:
+Program składa się z następujących plików składowych:
+main.cpp - plik główny,
+
+graph.h, graph.cpp - plik nagłówkowy i źródłowy, w którym zaimplementowana została klasa grafu Graph, posiadająca metodę będącą algorytmem rozwiązującym problem o nazwie matching(),
+
+generator.h, generator.cpp - plik nagłówkowy i źródłowy, z zaimplementowanym generatorem. Tworzony jest za pomocą funkcji generate(), która przyjmuje jako argumenty n - liczba wierszy, m - liczba kolumn, k - minimalne pokrycie w tworzonej tablicy, l - długość pojedynczego pokrycia, równe 2 
+
+Timer.h - plik nagłówkowy zawierający implementację timera mierzącego czas wykonania algorytmu
+
+
+
+
+
+
+
+
+
+

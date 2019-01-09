@@ -1,3 +1,4 @@
+/* Mateusz Krawczyk AAL.12 - Stacje BTS */
 #include "generator.h"
 
 #include <iostream>
@@ -44,6 +45,7 @@ std::string **generate(int n, int m, int k, int l)
 		std::cout<<"Allocation error in generator!"<<std::endl;
 		return(0);
 	}
+
 	int **Covered = new int*[n];
 	for (int i = 0; i < n; ++i)
 	{
