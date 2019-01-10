@@ -1,4 +1,6 @@
 /* Mateusz Krawczyk AAL.12 - Stacje BTS */
+#ifndef GRAPH_H
+#define GRAPH_H
 #include<bits/stdc++.h>
 #define NIL 0
 #define INF INT_MAX
@@ -32,3 +34,4 @@ public:
 	// Shows graph
 	void showGraph();
 };
+#endif //GRAPH_H

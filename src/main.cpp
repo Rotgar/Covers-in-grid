@@ -3,7 +3,7 @@
 #include "generator.h"
 #include "Timer.h"
 
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
@@ -11,13 +11,13 @@
 #include <math.h>
 using namespace std;
 
-int N, M, Cover=0, V, E, Max; // N - rows, M - column, Cover - result, Max - result of matching() algorithm,
+int N, M, Cover=0, V, E, Max; // N - rows, M - column, Cover - result, Max - result of matching() makeGraph,
                               // V - vertices, E - edges
 int **T1, **T2; // 2d arrays used to create bipartite graph. T1 holds numbers
                 // 0 - o, 1 - *  that belongs to first side of bipartite graph
                 // 2 - * that belongs to second side, 3 - * without neighbors, Cover is incremented and * removed
-Timer timer;
-
+Timer timer;    // Timer
+Graph *g;       // Pointer to graph
 // Show 2d table of T-parameter, for example int or string
 template<typename T>
 void show(T** tab)
@@ -44,25 +44,18 @@ void clear(T** tab)
   delete[] tab;
 }
 
-double maxO(double x, double y)
-{
-  if(x>y)
-    return x;
-  else
-    return y;
-}
-
 // T() complexity
-double funcT(int n)
+double funcT(int n, int m)
 {
-  double d = pow(V, 2.5);
-  double e = pow(V, 0.5) * E;
-  //cout<<"d: "<<d<<endl;
-  //cout<<"e: "<<e<<endl;
-  return maxO(2*N*M, e);
+    return n*m;
 }
 
-// Fill array used for creating bipartite graph
+/* Fill array used for creating bipartite graph
+T1 filled like 1 2 1 2
+               2 1 2 1
+               1 2 1 2
+T2 filled with 0's
+*/
 void fillArrays()
 {
   T1 = new int*[N], T2 = new int*[N];
@@ -82,8 +75,8 @@ void fillArrays()
 	}
 }
 
-// The algorithm. First the bipartite graph is created and then the algorithm used to count the cover
-void algorithm(string** T)
+// Create bipartite graph
+Graph* makeGraph(string** T)
 {
 	int v1, v2; // vertice numbers on left and right side of bipartite graph
   v1 = v2 = 0;
@@ -100,16 +93,16 @@ void algorithm(string** T)
         if((i==0 || i!=0 && T[i-1][j] == "o") && (i==N-1 || i!=N-1 && T[i+1][j] == "o")
           && (j==0 || j!=0 && T[i][j-1] == "o") && (j==M-1 || j!=N-1 && T[i][j+1] == "o"))
         {
-          T1[i][j] = 3;
+          T1[i][j] = 3; // has no neighbours
           Cover++;
         }
 
-        else if(T1[i][j] == 1)
+        else if(T1[i][j] == 1) // to 1st group of graph
         {
           v1++;
           T2[i][j] = v1;
         }
-        else if(T1[i][j] == 2)
+        else if(T1[i][j] == 2) // to 2nd group of graph
         {
           v2++;
           T2[i][j] = v2;
@@ -117,40 +110,43 @@ void algorithm(string** T)
       }
 		}
 	}
-  //show<string>(T);
-  //show<int>(T1);
-  //show<int>(T2);
 
   // Create the graph
-  Graph g(v1, v2);
-
+  Graph *g;
+  g = new Graph(v1, v2);
   E = 0;
-
+	V = v1 + v2;
   // Make edges between vertices
-	for(int i=0; i<N; ++i)
-	{
-		for(int j=0; j<M; ++j)
-		{
-			if(T1[i][j] == 1)
-			{
-				if(i!=0 && T1[i-1][j] == 2)
-				{ g.addEdge(T2[i][j], T2[i-1][j]); E++; }
-				if(i!=N-1 && T1[i+1][j] == 2)
-				{	g.addEdge(T2[i][j], T2[i+1][j]); E++; }
-				if(j!=0 && T1[i][j-1] == 2)
-				{	g.addEdge(T2[i][j], T2[i][j-1]); E++; }
-				if(j!=M-1 && T1[i][j+1] == 2)
-				{	g.addEdge(T2[i][j], T2[i][j+1]); E++; }
-			}
-		}
-	}
-	V = v1 + v2, Max;
-
-  cout<<"V: "<<V<<" E: "<<E<<endl;
-  Max = g.matching();
-  Cover+=V-Max;
+  if(V > 1)
+  {
+    for(int i=0; i<N; ++i)
+  	{
+  		for(int j=0; j<M; ++j)
+  		{
+  			if(T1[i][j] == 1)
+  			{
+  				if(i!=0 && T1[i-1][j] == 2)
+  				{ g->addEdge(T2[i][j], T2[i-1][j]); E++; }
+  				if(i!=N-1 && T1[i+1][j] == 2)
+  				{	g->addEdge(T2[i][j], T2[i+1][j]); E++; }
+  				if(j!=0 && T1[i][j-1] == 2)
+  				{	g->addEdge(T2[i][j], T2[i][j-1]); E++; }
+  				if(j!=M-1 && T1[i][j+1] == 2)
+  				{	g->addEdge(T2[i][j], T2[i][j+1]); E++; }
+  			}
+  		}
+  	}
+  }
   clear<int>(T2);
   clear<int>(T1);
+  return g;
+}
+
+// Run Hopcroft-Karp algorithm
+void algorithm(Graph *g)
+{
+  Max = g->matching();
+  Cover+=V-Max;
 }
 
 int main(int argc, char ** argv){
@@ -166,7 +162,6 @@ int main(int argc, char ** argv){
   string m = argv[1];
   if(m == "-m1")
   {
-
     cin>>N;
     if(cin.fail()){cout<<"Wrong N! Check input file."<<endl; exit(0);}
     cin>>M;
@@ -180,79 +175,101 @@ int main(int argc, char ** argv){
 
     int i, j;
     for( i = 0; i < N; ++i)
-    {
-      for( j = 0; j < M; ++j)
-      {
-        cin>>T[i][j];
-      }
-    }
+    { for( j = 0; j < M; ++j) { cin>>T[i][j]; } }
+
     fillArrays();
-  	algorithm(T);
+  	g = makeGraph(T);
+    algorithm(g);
     cout<<"Cover: "<<Cover<<endl;
+    delete g;
     clear<string>(T);
   }
 
   if(m == "-m2")
   {
-    N = stoi(argv[2]), M = stoi(argv[3]);
-    int k = stoi(argv[4]);
+    string _n, _m, _k;
+    _n = argv[2];
+    if(_n!="-n") { cout<<"Wrong flag, should be -n"<<endl; exit(0); }
+    _m = argv[4];
+    if(_m!="-m") { cout<<"Wrong flag, should be -m"<<endl; exit(0); }
+    _k = argv[6];
+    if(_k!="-k") { cout<<"Wrong flag, should be -k"<<endl; exit(0); }
+
+    N = stoi(argv[3]), M = stoi(argv[5]);
+    int k = stoi(argv[7]);
 
     T = generate(N, M, k, 2);
     show<string>(T);
     fillArrays();
-  	algorithm(T);
+  	Graph* g = makeGraph(T);
+    algorithm(g);
     cout<<"Cover: "<<Cover<<endl;
     clear<string>(T);
+    delete g;
   }
 
-  if(m== "-m3")
+  if(m == "-m3")
   {
-    //N = 1000, M = 1000;
-    /*int enter = 1000, step = 500;
-    int r = 5, k = 20;
-    int mediana = k/2;
-*/
-    N = stoi(argv[2]);
-    M = stoi(argv[3]);
-
-    int enter = stoi(argv[4]);
-    int k = stoi(argv[5]);
-    int step = stoi(argv[6]);
-    int r = stoi(argv[7]);
+    string _nx, _mx, _cov, _k, _step, _r;
+    _nx = argv[2];
+    if(_nx!="-n") { cout<<"Wrong flag, should be -n"<<endl; exit(0); }
+    int nx = stoi(argv[3]);
+    _mx = argv[4];
+    if(_mx!="-m") { cout<<"Wrong flag, should be -m"<<endl; exit(0); }
+    int mx = stoi(argv[5]);
+    _cov = argv[6];
+    if(_cov!="-c") { cout<<"Wrong flag, should be -c"<<endl; exit(0); }
+    int cov = stoi(argv[7]);
+    _k = argv[8];
+    if(_k!="-k") { cout<<"Wrong flag, should be -k"<<endl; exit(0); }
+    int k = stoi(argv[9]);
+    _step = argv[10];
+    if(_step!="-step") { cout<<"Wrong flag, should be -step"<<endl; exit(0); }
+    int step = stoi(argv[11]);
+    _r = argv[12];
+    if(_r!="-r") { cout<<"Wrong flag, should be -r"<<endl; exit(0); }
+    int r = stoi(argv[13]);
 
     int mediana;
     mediana = k/2;
 
     double *Table = new double[k];
     double avgTime;
-    int l = enter;
+    int nxx = nx, mxx = mx;
     for(int i=0; i<k; ++i)
     {
       avgTime = 0;
       for(int j=0; j<r; ++j)
       {
         Cover = 0;
-        T = generate(N, M, l, 2);
-        fillArrays();
+        N = nxx, M = mxx;
+        T = generate(N, M, cov, 2);
+
         timer.start();
-      	algorithm(T);
+        fillArrays();
+        g = makeGraph(T);
+        algorithm(g);
+
         const auto elapsed = timer.time_elapsed();
         double t = (double)(elapsed.count()/1000000.0f);
         avgTime+=t;
+        delete g;
+        clear<string>(T);
       }
       avgTime = (double)(avgTime/r);
       Table[i] = avgTime;
-      l+=step;
-      clear<string>(T);
+      nxx+=step;
+      mxx+=step;
     }
 
-    double q;
-    double c = funcT(mediana)/Table[mediana];
+    double q, c = funcT(nx + mediana * step, mx + mediana * step)/Table[mediana];
+    cout<<"n      m      t(n,m)[ms]     q(n,m)"<<endl;
     for(int i=0; i<k; ++i)
     {
-      int n = enter + i * step;
-      q = Table[i]/funcT(n) * c;
-      cout<<n<<"  "<<Table[i]<<"  "<<q<<endl;
+      int n = nx + i * step;
+      int m = mx + i * step;
+      q = Table[i]/funcT(n, m) * c;
+      cout<<n<<"     "<<m<<"     "<<Table[i]<<"      "<<q<<endl;
     }
     delete[] Table;
   }

@@ -1,6 +1,6 @@
 /* Mateusz Krawczyk AAL.12 - Stacje BTS */
-#ifndef TIMER_H_INCLUDED
-#define TIMER_H_INCLUDED
+#ifndef TIMER_H
+#define TIMER_H
 
 #include <iostream>
 #include <ctime>
@@ -27,4 +27,4 @@ private:
 };
 
 
-#endif // TIME R_H_INCLUDED
+#endif // TIMER_H

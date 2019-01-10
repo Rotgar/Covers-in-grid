@@ -1,11 +1,11 @@
 /* Mateusz Krawczyk AAL.12 - Stacje BTS */
 #include "generator.h"
-
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
 #include <string>
 
+// Random generator
 std::string **generate(int n, int m, int k, int l)
 {
 	int max;
