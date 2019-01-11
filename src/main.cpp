@@ -1,152 +1,26 @@
 /* Mateusz Krawczyk AAL.12 - Stacje BTS */
-#include "graph.h"
-#include "generator.h"
-#include "Timer.h"
-
 #include <bits/stdc++.h>
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
 #include <cctype>
 #include <math.h>
+
+#include "graph.h"
+#include "generator.h"
+#include "cover.h"
+#include "timer.h"
+
 using namespace std;
 
-int N, M, Cover=0, V, E, Max; // N - rows, M - column, Cover - result, Max - result of matching() makeGraph,
-                              // V - vertices, E - edges
-int **T1, **T2; // 2d arrays used to create bipartite graph. T1 holds numbers
-                // 0 - o, 1 - *  that belongs to first side of bipartite graph
-                // 2 - * that belongs to second side, 3 - * without neighbors, Cover is incremented and * removed
+int N, M;// N - rows, M - column,  E - edges
 Timer timer;    // Timer
-Graph *g;       // Pointer to graph
-// Show 2d table of T-parameter, for example int or string
-template<typename T>
-void show(T** tab)
-{
-  for(int i=0; i<N; ++i)
-  {
-    for(int j=0; j<M; ++j)
-    {
-        cout<<tab[i][j]<<" ";
-    }
-    cout<<endl;
-  }
-  cout<<endl;
-}
-
-// Clear 2d table of T-parameter, for example int or string
-template<typename T>
-void clear(T** tab)
-{
-  for(int i=0; i<N; ++i)
-  {
-    delete [] tab[i];
-  }
-  delete[] tab;
-}
+Graph *g; // Pointer to graph
 
 // T() complexity
 double funcT(int n, int m)
 {
-    return n*m;
-}
-
-/* Fill array used for creating bipartite graph
-T1 filled like 1 2 1 2
-               2 1 2 1
-               1 2 1 2
-T2 filled with 0's
-*/
-void fillArrays()
-{
-  T1 = new int*[N], T2 = new int*[N];
-  for(int i=0; i<N; ++i)
-  {
-    T1[i] = new int[M];
-		T2[i] = new int[M];
-  }
-
-  for(int i=0; i<N; ++i)
-	{
-		for(int j=0; j<M; ++j)
-		{
-			T1[i][j] = (i + j) % 2 == 0 ? 1 : 2;
-			T2[i][j] = 0;
-		}
-	}
-}
-
-// Create bipartite graph
-Graph* makeGraph(string** T)
-{
-	int v1, v2; // vertice numbers on left and right side of bipartite graph
-  v1 = v2 = 0;
-  for(int i=0; i<N; ++i)
-	{
-		for(int j=0; j<M; ++j)
-		{
-      if(T[i][j] == "o")
-      {
-        T1[i][j] = 0;
-      }
-      else
-      {
-        if((i==0 || i!=0 && T[i-1][j] == "o") && (i==N-1 || i!=N-1 && T[i+1][j] == "o")
-          && (j==0 || j!=0 && T[i][j-1] == "o") && (j==M-1 || j!=N-1 && T[i][j+1] == "o"))
-        {
-          T1[i][j] = 3; // has no neighbours
-          Cover++;
-        }
-
-        else if(T1[i][j] == 1) // to 1st group of graph
-        {
-          v1++;
-          T2[i][j] = v1;
-        }
-        else if(T1[i][j] == 2) // to 2nd group of graph
-        {
-          v2++;
-          T2[i][j] = v2;
-        }
-      }
-		}
-	}
-
-  // Create the graph
-  Graph *g;
-  g = new Graph(v1, v2);
-  E = 0;
-	V = v1 + v2;
-  // Make edges between vertices
-  if(V > 1)
-  {
-    for(int i=0; i<N; ++i)
-  	{
-  		for(int j=0; j<M; ++j)
-  		{
-  			if(T1[i][j] == 1)
-  			{
-  				if(i!=0 && T1[i-1][j] == 2)
-  				{ g->addEdge(T2[i][j], T2[i-1][j]); E++; }
-  				if(i!=N-1 && T1[i+1][j] == 2)
-  				{	g->addEdge(T2[i][j], T2[i+1][j]); E++; }
-  				if(j!=0 && T1[i][j-1] == 2)
-  				{	g->addEdge(T2[i][j], T2[i][j-1]); E++; }
-  				if(j!=M-1 && T1[i][j+1] == 2)
-  				{	g->addEdge(T2[i][j], T2[i][j+1]); E++; }
-  			}
-  		}
-  	}
-  }
-  clear<int>(T2);
-  clear<int>(T1);
-  return g;
-}
-
-// Run Hopcroft-Karp algorithm
-void algorithm(Graph *g)
-{
-  Max = g->matching();
-  Cover+=V-Max;
+  return n*m;
 }
 
 int main(int argc, char ** argv){
@@ -158,7 +32,6 @@ int main(int argc, char ** argv){
     cout<<"Too little arguments!"<<endl;
     exit(0);
   }
-
   string m = argv[1];
   if(m == "-m1")
   {
@@ -179,7 +52,7 @@ int main(int argc, char ** argv){
 
     fillArrays();
   	g = makeGraph(T);
-    algorithm(g);
+    int Cover = algorithm(g);
     cout<<"Cover: "<<Cover<<endl;
     delete g;
     clear<string>(T);
@@ -187,22 +60,22 @@ int main(int argc, char ** argv){
 
   if(m == "-m2")
   {
-    string _n, _m, _k;
+    string _n, _m, _cov;
     _n = argv[2];
     if(_n!="-n") { cout<<"Wrong flag, should be -n"<<endl; exit(0); }
     _m = argv[4];
     if(_m!="-m") { cout<<"Wrong flag, should be -m"<<endl; exit(0); }
-    _k = argv[6];
-    if(_k!="-k") { cout<<"Wrong flag, should be -k"<<endl; exit(0); }
+    _cov = argv[6];
+    if(_cov!="-c") { cout<<"Wrong flag, should be -c"<<endl; exit(0); }
 
     N = stoi(argv[3]), M = stoi(argv[5]);
-    int k = stoi(argv[7]);
+    int cov = stoi(argv[7]);
 
-    T = generate(N, M, k, 2);
+    T = generate(N, M, cov, 2);
     show<string>(T);
     fillArrays();
   	Graph* g = makeGraph(T);
-    algorithm(g);
+    int Cover = algorithm(g);
     cout<<"Cover: "<<Cover<<endl;
     clear<string>(T);
     delete g;
@@ -236,19 +109,20 @@ int main(int argc, char ** argv){
     double *Table = new double[k];
     double avgTime;
     int nxx = nx, mxx = mx;
+
+    cout<<"Creating table..."<<endl<<endl;
     for(int i=0; i<k; ++i)
     {
       avgTime = 0;
       for(int j=0; j<r; ++j)
       {
-        Cover = 0;
         N = nxx, M = mxx;
         T = generate(N, M, cov, 2);
 
         timer.start();
         fillArrays();
         g = makeGraph(T);
-        algorithm(g);
+        int Cover = algorithm(g);
 
         const auto elapsed = timer.time_elapsed();
         double t = (double)(elapsed.count()/1000000.0f);
@@ -273,6 +147,5 @@ int main(int argc, char ** argv){
     }
     delete[] Table;
   }
-
 	return 0;
 }

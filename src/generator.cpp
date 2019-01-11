@@ -1,9 +1,9 @@
 /* Mateusz Krawczyk AAL.12 - Stacje BTS */
-#include "generator.h"
-#include <iostream>
 #include <cstdlib>
 #include <time.h>
 #include <string>
+
+#include "generator.h"
 
 // Random generator
 std::string **generate(int n, int m, int k, int l)
@@ -202,7 +202,8 @@ std::string **generate(int n, int m, int k, int l)
 				{
 					pp = true;
 				}
-				while (hit != cover)
+				int r = rand() %m;
+				while (hit != r)
 				{
 					int	y = rand() % n;
 					if (pp)
@@ -268,7 +269,8 @@ std::string **generate(int n, int m, int k, int l)
 				{
 					pp = true;
 				}
-				while (hit != cover)
+				int r = rand() %n;
+				while (hit != r)
 				{
 					int	x = rand() % m;
 					if (pp)
