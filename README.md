@@ -1,36 +1,36 @@
 # Covers-in-grid
 
-Analiza algorytmów
+**Analiza algorytmów**
 
-Zad. 12 Stacje BTS - problem polega na tym, że na wejściu dostajemy tablicę dwuwymiarową wypełnioną * oraz o, w której należy pokryć wszystkie *, gdzie możemy to zrobić za pomocą "prostokątów wielkości 1x2", czyli dwie kolejne komórki tablicy pionowo lub poziomo, albo zaznaczać * pojedynczo. Należy znaleźć najmniejszą liczbę takich pokryć, aby każda * nalezała do co najmniej jednego pokrycia.
+**Zad. 12 Stacje BTS** - problem polega na tym, że na wejściu dostajemy tablicę dwuwymiarową wypełnioną * oraz o, w której należy pokryć wszystkie *, gdzie możemy to zrobić za pomocą "prostokątów wielkości 1x2", czyli dwie kolejne komórki tablicy pionowo lub poziomo, albo zaznaczać * pojedynczo. Należy znaleźć najmniejszą liczbę takich pokryć, aby każda * nalezała do co najmniej jednego pokrycia.
 
 Program możemy skompilować poleceniem make, a następnie uruchomić za pomocą ./cover w następujacych trybach:
 
-1. Dajemy na wejście dane z pliku .txt, w którym znajduje sie tablica jak w treści zadania wypełniona, np. w nastepujący sposób:
+1. Dajemy na wejście dane z pliku .txt, w którym znajduje sie tablica jak w treści zadania wypełniona, np. w następujący sposób:
    
-   3 4
-   * o * o 
-   o * * o
-   * * * o  
+   3 4  
+   \* o * o  
+   o * * o  
+   \* * * o  
 
    gdzie 3 oznacza liczbę wierszy, a 4 liczbę kolumn. Wszystkie elementy muszą być oddzielone spacjami.
    Uruchamiamy go wtedy jako:
    
-   ./cover -m1 < dane.txt            - wyświetli rozwiązanie na w terminalu, lub można podać je do pliku, np.
-   ./cover -m1 < dane.txt > out.txt  - zapisze wynik w pliku out.txt
+   **./cover -m1 < dane.txt**            - wyświetli rozwiązanie na w terminalu, lub można podać je do pliku, np.
+   **./cover -m1 < dane.txt > out.txt**  - zapisze wynik w pliku out.txt
 
 
-2. Tablica zostaje wygenerowana losowo. Jako argumenty programu podajemy kolejno właściwe flagi a po nich liczbę wierszy, kolumn tablicy, a jako ostatni pokrycie jakie ma posiadać ta tablica. Flagi -n, -m, -k odzielone spacją od wartości:
+2. Tablica zostaje w*ygenerowana losowo. Jako argumenty programu podajemy kolejno właściwe flagi a po nich liczbę wierszy, kolumn tablicy, a jako ostatni pokrycie jakie ma posiadać ta tablica. Flagi -n, -m, -k odzielone spacją od wartości:
  
-   ./cover -m2 -n n -m m -c cov 
+  **./cover -m2 -n n -m m -c cov**
     
-   , np.
-   ./cover -m2 -n 10 -m 10 -c 7    - wygeneruje losowo tablicę 10x10, w której pokrycie wynosi 7. Wygenerowana tablica zostanie pokazana na wyjściu, a poniżej rozwiązanie uzyskane przeprowadzonym na niej algorytmem. Powinno zwrócić wartość 4 argumentu, czyli 7.
+   , np.  
+   **./cover -m2 -n 10 -m 10 -c 7**    - wygeneruje losowo tablicę 10x10, w której pokrycie wynosi 7. Wygenerowana tablica zostanie pokazana na wyjściu, a poniżej rozwiązanie uzyskane przeprowadzonym na niej algorytmem. Powinno zwrócić wartość 4 argumentu, czyli 7.
 
 
 3. Trzecia opcja generuje losowo tablice i wykonuje na nich cały algorytm w celach pomiarowych. Na końcu wyświetlona tabelka jak w wymaganiach.
  
-   ./cover -m3 -n n -m m -c cov -k k -step step -r r
+   **./cover -m3 -n n -m m -c cov -k k -step step -r r**  
     gdzie 
 	n - wiersze, m - kolumny
 	cov - pokrycie jakie mają posiadać generowane tablice	
@@ -38,7 +38,7 @@ Program możemy skompilować poleceniem make, a następnie uruchomić za pomocą
 	step - krok o jaki zwiekszamy n oraz m, w kolejnych iteracjach
 	r - liczba powtórzeń dla konkretnych n oraz m
 
-  Przykładowo: ./cover -m3 -n 300 -m 300 -c 400 -k 10 -step 100 -r 10 - tworzy tablice zaczynająć od 300x300(r=10 razy), zwiększając je o step=100 w   	 każdej iteracji od 0 do k=10.
+  Przykładowo: **./cover -m3 -n 300 -m 300 -c 400 -k 10 -step 100 -r 10** - tworzy tablice zaczynająć od 300x300(r=10 razy), zwiększając je o step=100 w   	 każdej iteracji od 0 do k=10.
   Najlepiej ograniczyć rozmiary tworzonych tablic tak, by nie wykraczały w kolejnym iteracjach powyżej 4000( m oraz n w kolejnych krokach).
   Podawać cov tak by nie wykraczał poza n*m/2, gdyż nie da się zrobić większej liczby rozwiązań. W dodatku wartości w okolicach n*m/2 sprawią, że      	 program zadziała z pesymistyczną złożonością, co dla dużych tablic moze zająć bardzo długo. Najlepiej podawać cov tak by był w okolicach 
   <1/4, 3/4>*n*m.  
