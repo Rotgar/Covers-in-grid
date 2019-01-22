@@ -16,7 +16,7 @@ Program możemy skompilować poleceniem make, a następnie uruchomić za pomocą
    gdzie 3 oznacza liczbę wierszy, a 4 liczbę kolumn. Wszystkie elementy muszą być oddzielone spacjami.
    Uruchamiamy go wtedy jako:
    
-   **./cover -m1 < dane.txt**            - wyświetli rozwiązanie na w terminalu, lub można podać je do pliku, np.
+   **./cover -m1 < dane.txt**            - wyświetli rozwiązanie na w terminalu, lub można podać je do pliku, np.  
    **./cover -m1 < dane.txt > out.txt**  - zapisze wynik w pliku out.txt
 
 
